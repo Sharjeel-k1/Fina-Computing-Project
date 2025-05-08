@@ -8,6 +8,7 @@ import Footer from './components/Footer';
 import LoginModal from './components/LoginModal';
 import RegisterModal from './components/RegisterModal';
 import CreateOrderModal from './components/CreateOrderModal';
+import VerifyEmailModal from './components/VerifyEmailModal';
 
 export default function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="/" element={<Home openCreateOrder={openCreateOrder} />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/verify-email/:token" element={<VerifyEmailModal />} />
       </Routes>
       <Footer />
       {isLoginOpen && (

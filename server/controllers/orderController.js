@@ -46,33 +46,3 @@ export const updateOrderStatus = (req, res) => {
     // Logic to update the order status
     res.status(200).json({ message: `Order ${id} updated to status ${status}` });
 };
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const token = localStorage.getItem('token');
-  const requestBody = { car_model: carModel, issue, number_plate: numberPlate }; // Use number_plate instead of vehicle_id
-
-  try {
-    const res = await fetch('http://localhost:5000/api/orders', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(requestBody),
-    });
-    const data = await res.json();
-
-    if (res.ok) {
-      alert('Order created successfully');
-      closeModal();
-      navigate('/orders'); // Redirect to the orders page
-    } else {
-      console.error('Error:', data);
-      alert(data.error || 'Failed to create order');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('An error occurred while creating the order');
-  }
-};

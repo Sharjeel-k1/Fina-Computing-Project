@@ -1,35 +1,52 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-export default function RegisterModal({ closeModal, openLoginModal }) {
+export default function RegisterModal({ closeModal }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [contact_number, setContactNumber] = useState(''); // Updated to match the schema
+  const [contactNumber, setContactNumber] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false); // Track if registration was successful
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    const res = await fetch('http://localhost:5000/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, contact_number }), // Use contact_number as per schema
-    });
-    const data = await res.json();
-    if (res.ok) {
-      closeModal(); // Close the registration modal
-      openLoginModal('Registration successful!'); // Open the login modal with a success message
-    } else {
-      alert(data.error || 'Registration failed');
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, contact_number: contactNumber }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setIsSuccess(false);
+        setMessage(data.error || 'Failed to register');
+        setShowVerifyModal(true); // Show error modal
+        return; // Do not close modal
+      }
+
+      setMessage('Registration successful! Please check your email to verify your account.');
+      setIsSuccess(true);
+      setShowVerifyModal(true);
+    } catch (err) {
+      setMessage(err.message);
+      setIsSuccess(false);
+      setShowVerifyModal(true);
     }
   };
 
   return (
     <div className="modal">
-      <div className="modal-content register-modal">
+      <div className="modal-content">
         <span className="close-icon" onClick={closeModal}>
           &times;
         </span>
         <h2 className="text-center text-3xl font-bold mb-4">Register</h2>
-        <form onSubmit={handleSubmit}>
+        {message && (
+          <p className={`text-center mb-4 ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>{message}</p>
+        )}
+        <form onSubmit={handleRegister}>
           <input
             type="text"
             placeholder="Name"
@@ -57,14 +74,30 @@ export default function RegisterModal({ closeModal, openLoginModal }) {
           <input
             type="text"
             placeholder="Contact Number"
-            value={contact_number} // Updated to match the schema
-            onChange={(e) => setContactNumber(e.target.value)} // Correctly extract the value
+            value={contactNumber}
+            onChange={(e) => setContactNumber(e.target.value)}
             required
             className="w-full p-2 mb-4 border border-gray-300 rounded"
           />
           <button className="button-primary w-full">Register</button>
         </form>
       </div>
+      {showVerifyModal && (
+        <div className="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="modal-content bg-white text-black p-6 rounded shadow-md max-w-sm w-full text-center relative">
+            <button
+              className="absolute top-2 right-4 text-2xl text-gray-600 hover:text-red-500"
+              onClick={() => {
+                setShowVerifyModal(false);
+                if (isSuccess) closeModal();
+              }}
+            >
+              &times;
+            </button>
+            <p className={`mb-2 ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>{message}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

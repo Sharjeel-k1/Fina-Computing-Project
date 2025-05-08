@@ -28,6 +28,15 @@ CREATE TABLE invoices (
     amount NUMERIC(10, 2),
     payment_status VARCHAR(20) DEFAULT 'Unpaid'
 );
+CREATE TABLE TWO_FACTOR_AUTHENTICATION (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    auth_code_hash VARCHAR(255) NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
+    status VARCHAR(50) NOT NULL
+);
 ALTER TABLE users
 ADD COLUMN reset_password_token VARCHAR(255),
 ADD COLUMN reset_password_expires BIGINT;
+ALTER TABLE users ADD COLUMN verified BOOLEAN DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN verification_token VARCHAR(255);
